@@ -1,4 +1,6 @@
-# Karnel Travel Guide — Tài liệu API (hạn 09/11)
+# Karnel Travel Guide — Tài liệu API (backend, hạn 09/11)
+
+Tài liệu này thuộc repo backend. Frontend dùng JSON mẫu để làm giao diện, không nằm trong repo này.
 
 Cột và ràng buộc lấy theo `docs/Thiet_Ke_CSDL_Karnel_Travel_Guide.xlsx`. Tên cột trong SQL Server là snake_case (`user_id`, `spot_name`). JSON bên dưới dùng camelCase.
 
