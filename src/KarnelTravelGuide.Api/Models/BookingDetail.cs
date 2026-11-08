@@ -2,13 +2,15 @@ namespace KarnelTravelGuide.Api.Models;
 
 public class BookingDetail
 {
-    public int Id { get; set; }
+    public int DetailId { get; set; }
     public int BookingId { get; set; }
     public Booking Booking { get; set; } = null!;
-    public string ItemType { get; set; } = string.Empty;
-    public int ItemId { get; set; }
-    public string ItemName { get; set; } = string.Empty;
-    public int Quantity { get; set; }
+    public int? TourId { get; set; }
+    public TourPackage? TourPackage { get; set; }
+    public int? ScheduleId { get; set; }
+    public Schedule? Schedule { get; set; }
+    public int? ServiceItemId { get; set; }
+    public ServiceItem? ServiceItem { get; set; }
+    public int Quantity { get; set; } = 1;
     public decimal UnitPrice { get; set; }
-    public DateTime ServiceDate { get; set; }
 }

@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using KarnelTravelGuide.Api.Models;
 using ServiceProvider = KarnelTravelGuide.Api.Models.ServiceProvider;
 
@@ -14,27 +12,29 @@ public static class DbSeeder
             return;
         }
 
-        var now = new DateTime(2026, 11, 8, 8, 0, 0, DateTimeKind.Utc);
+        var now = new DateTime(2026, 11, 8, 8, 0, 0);
 
         var admin = new User
         {
+            Username = "admin",
+            PasswordHash = PasswordHasher.Hash("Admin@123"),
             FullName = "Quản trị Karnel",
             Email = "admin@karnel.local",
-            PasswordHash = HashPassword("Admin@123"),
             Phone = "0901000001",
-            Role = "Admin",
             Address = "Hải Châu, Đà Nẵng",
+            Role = "Admin",
             IsActive = true,
             CreatedAt = now
         };
         var user = new User
         {
+            Username = "minhan",
+            PasswordHash = PasswordHasher.Hash("User@123"),
             FullName = "Nguyễn Minh An",
             Email = "user@karnel.local",
-            PasswordHash = HashPassword("User@123"),
             Phone = "0901000002",
-            Role = "User",
             Address = "Sơn Trà, Đà Nẵng",
+            Role = "User",
             IsActive = true,
             CreatedAt = now
         };
@@ -42,166 +42,163 @@ public static class DbSeeder
 
         var locations = new[]
         {
-            new Location { Name = "Đà Nẵng", City = "Đà Nẵng", Province = "Đà Nẵng", Description = "Thành phố biển miền Trung." },
-            new Location { Name = "Hội An", City = "Hội An", Province = "Quảng Nam", Description = "Phố cổ và sông Hoài." },
-            new Location { Name = "Huế", City = "Huế", Province = "Thừa Thiên Huế", Description = "Cố đô và di tích triều Nguyễn." },
-            new Location { Name = "Nha Trang", City = "Nha Trang", Province = "Khánh Hòa", Description = "Vịnh biển và đảo." }
+            new Location { LocationName = "Đà Nẵng", Region = "Miền Trung", Description = "Thành phố biển miền Trung." },
+            new Location { LocationName = "Quảng Nam", Region = "Miền Trung", Description = "Phố cổ Hội An và vùng phụ cận." },
+            new Location { LocationName = "Thừa Thiên Huế", Region = "Miền Trung", Description = "Cố đô và di tích triều Nguyễn." },
+            new Location { LocationName = "Khánh Hòa", Region = "Miền Trung", Description = "Vịnh Nha Trang và các đảo." }
         };
         db.Locations.AddRange(locations);
 
         var categories = new[]
         {
-            new CategoryType { Name = "Biển", Description = "Điểm đến ven biển." },
-            new CategoryType { Name = "Di tích", Description = "Di tích lịch sử, văn hóa." },
-            new CategoryType { Name = "Núi", Description = "Khu du lịch núi và cao nguyên." },
-            new CategoryType { Name = "Ẩm thực", Description = "Điểm ăn uống đặc sản." }
+            new CategoryType { CategoryName = "Du lịch biển" },
+            new CategoryType { CategoryName = "Văn hóa - Di tích" },
+            new CategoryType { CategoryName = "Sinh thái" },
+            new CategoryType { CategoryName = "Ẩm thực" }
         };
         db.CategoryTypes.AddRange(categories);
         db.SaveChanges();
 
         var spots = new[]
         {
-            new TouristSpot { Name = "Bà Nà Hills", LocationId = locations[0].Id, CategoryTypeId = categories[2].Id, Description = "Khu du lịch trên núi với cầu Vàng.", Address = "Hòa Ninh, Hòa Vang, Đà Nẵng", OpenTime = "07:00-22:00", TicketPrice = 900000, ImageUrl = "/images/ba-na.jpg", IsActive = true },
-            new TouristSpot { Name = "Biển Mỹ Khê", LocationId = locations[0].Id, CategoryTypeId = categories[0].Id, Description = "Bãi biển trung tâm Đà Nẵng.", Address = "Phước Mỹ, Sơn Trà, Đà Nẵng", OpenTime = "Cả ngày", TicketPrice = 0, ImageUrl = "/images/my-khe.jpg", IsActive = true },
-            new TouristSpot { Name = "Phố cổ Hội An", LocationId = locations[1].Id, CategoryTypeId = categories[1].Id, Description = "Khu phố cổ được UNESCO công nhận.", Address = "Minh An, Hội An", OpenTime = "Cả ngày", TicketPrice = 120000, ImageUrl = "/images/hoi-an.jpg", IsActive = true },
-            new TouristSpot { Name = "Đại Nội Huế", LocationId = locations[2].Id, CategoryTypeId = categories[1].Id, Description = "Hoàng thành triều Nguyễn.", Address = "Đông Ba, Huế", OpenTime = "07:00-17:30", TicketPrice = 200000, ImageUrl = "/images/dai-noi.jpg", IsActive = true },
-            new TouristSpot { Name = "Vịnh Nha Trang", LocationId = locations[3].Id, CategoryTypeId = categories[0].Id, Description = "Tham quan vịnh và các đảo.", Address = "Trần Phú, Nha Trang", OpenTime = "07:00-17:00", TicketPrice = 350000, ImageUrl = "/images/nha-trang.jpg", IsActive = true },
-            new TouristSpot { Name = "Chợ Hội An", LocationId = locations[1].Id, CategoryTypeId = categories[3].Id, Description = "Đặc sản và ẩm thực địa phương.", Address = "Trần Phú, Hội An", OpenTime = "06:00-18:00", TicketPrice = 0, ImageUrl = "/images/cho-hoi-an.jpg", IsActive = true }
+            new TouristSpot { LocationId = locations[0].LocationId, CategoryId = categories[2].CategoryId, SpotName = "Bà Nà Hills", ThumbnailUrl = "/images/ba-na.jpg", Description = "Khu du lịch trên núi với cầu Vàng.", DetailedContent = "Bà Nà Hills nằm ở Hòa Vang, Đà Nẵng. Điểm nhấn là Cầu Vàng và khu vui chơi trên đỉnh núi.", IsFeatured = true, CreatedAt = now },
+            new TouristSpot { LocationId = locations[0].LocationId, CategoryId = categories[0].CategoryId, SpotName = "Biển Mỹ Khê", ThumbnailUrl = "/images/my-khe.jpg", Description = "Bãi biển trung tâm Đà Nẵng.", DetailedContent = "Mỹ Khê kéo dài dọc đường Võ Nguyên Giáp, thích hợp tắm biển và đi bộ.", IsFeatured = true, CreatedAt = now },
+            new TouristSpot { LocationId = locations[1].LocationId, CategoryId = categories[1].CategoryId, SpotName = "Phố cổ Hội An", ThumbnailUrl = "/images/hoi-an.jpg", Description = "Khu phố cổ bên sông Hoài.", DetailedContent = "Phố cổ Hội An giữ kiến trúc thương cảng, đèn lồng và hội quán.", IsFeatured = true, CreatedAt = now },
+            new TouristSpot { LocationId = locations[2].LocationId, CategoryId = categories[1].CategoryId, SpotName = "Đại Nội Huế", ThumbnailUrl = "/images/dai-noi.jpg", Description = "Hoàng thành triều Nguyễn.", DetailedContent = "Đại Nội là quần thể kiến trúc cung đình ở bờ bắc sông Hương.", IsFeatured = false, CreatedAt = now },
+            new TouristSpot { LocationId = locations[3].LocationId, CategoryId = categories[0].CategoryId, SpotName = "Vịnh Nha Trang", ThumbnailUrl = "/images/nha-trang.jpg", Description = "Tham quan vịnh và các đảo.", DetailedContent = "Vịnh Nha Trang gồm các đảo Hòn Mun, Hòn Tằm và hoạt động tắm biển.", IsFeatured = false, CreatedAt = now },
+            new TouristSpot { LocationId = locations[1].LocationId, CategoryId = categories[3].CategoryId, SpotName = "Chợ Hội An", ThumbnailUrl = "/images/cho-hoi-an.jpg", Description = "Đặc sản và ẩm thực địa phương.", DetailedContent = "Chợ Hội An bán cao lầu, mì Quảng và đặc sản làm quà.", IsFeatured = false, CreatedAt = now }
         };
         db.TouristSpots.AddRange(spots);
-        db.SaveChanges();
-
-        var tours = new[]
-        {
-            new TourPackage { Name = "Đà Nẵng 2 ngày", TouristSpotId = spots[0].Id, Description = "Bà Nà Hills và biển Mỹ Khê.", DurationDays = 2, Price = 2500000, MaxGuests = 20, ImageUrl = "/images/tour-danang.jpg", IsActive = true },
-            new TourPackage { Name = "Hội An về đêm", TouristSpotId = spots[2].Id, Description = "Phố cổ và đèn lồng.", DurationDays = 1, Price = 890000, MaxGuests = 15, ImageUrl = "/images/tour-hoian.jpg", IsActive = true },
-            new TourPackage { Name = "Huế di sản", TouristSpotId = spots[3].Id, Description = "Đại Nội và lăng tẩm.", DurationDays = 2, Price = 2100000, MaxGuests = 18, ImageUrl = "/images/tour-hue.jpg", IsActive = true },
-            new TourPackage { Name = "Nha Trang đảo", TouristSpotId = spots[4].Id, Description = "Tour vịnh trong ngày.", DurationDays = 1, Price = 750000, MaxGuests = 30, ImageUrl = "/images/tour-nhatrang.jpg", IsActive = true }
-        };
-        db.TourPackages.AddRange(tours);
 
         var providers = new[]
         {
-            new ServiceProvider { Name = "Karnel Beach Hotel", Type = "Hotel", LocationId = locations[0].Id, Address = "Võ Nguyên Giáp, Đà Nẵng", Description = "Khách sạn view biển.", Phone = "02361111001", StarRating = 4, ImageUrl = "/images/hotel-beach.jpg", IsActive = true },
-            new ServiceProvider { Name = "Hội An Riverside Hotel", Type = "Hotel", LocationId = locations[1].Id, Address = "Nhiêu Lộc, Hội An", Description = "Khách sạn sát phố cổ.", Phone = "02351111002", StarRating = 3, ImageUrl = "/images/hotel-hoian.jpg", IsActive = true },
-            new ServiceProvider { Name = "Nhà hàng Mỳ Quảng Bà", Type = "Restaurant", LocationId = locations[0].Id, Address = "Trần Quốc Toản, Đà Nẵng", Description = "Đặc sản mì Quảng.", Phone = "09031111003", StarRating = null, ImageUrl = "/images/restaurant.jpg", IsActive = true },
-            new ServiceProvider { Name = "Karnel Bay Resort", Type = "Resort", LocationId = locations[3].Id, Address = "Trần Phú, Nha Trang", Description = "Resort sát vịnh.", Phone = "02581111004", StarRating = 5, ImageUrl = "/images/resort.jpg", IsActive = true }
+            new ServiceProvider { LocationId = locations[0].LocationId, ServiceType = "Hotel", ProviderName = "Karnel Beach Hotel", StarRating = 4, Address = "Võ Nguyên Giáp, Đà Nẵng", Phone = "02361111001", Website = "https://karnel.local/beach-hotel", MinPrice = 1500000, MaxPrice = 2200000, Description = "Khách sạn view biển.", ImageUrl = "/images/hotel-beach.jpg", IsActive = true },
+            new ServiceProvider { LocationId = locations[1].LocationId, ServiceType = "Hotel", ProviderName = "Hội An Riverside Hotel", StarRating = 3, Address = "Nhiêu Lộc, Hội An", Phone = "02351111002", MinPrice = 900000, MaxPrice = 900000, Description = "Khách sạn sát phố cổ.", ImageUrl = "/images/hotel-hoian.jpg", IsActive = true },
+            new ServiceProvider { LocationId = locations[0].LocationId, ServiceType = "Restaurant", ProviderName = "Nhà hàng Mỳ Quảng Bà", Address = "Trần Quốc Toản, Đà Nẵng", Phone = "09031111003", MinPrice = 50000, MaxPrice = 120000, Description = "Đặc sản mì Quảng.", ImageUrl = "/images/restaurant.jpg", IsActive = true },
+            new ServiceProvider { LocationId = locations[3].LocationId, ServiceType = "Resort", ProviderName = "Karnel Bay Resort", StarRating = 5, Address = "Trần Phú, Nha Trang", Phone = "02581111004", Website = "https://karnel.local/bay-resort", MinPrice = 3500000, MaxPrice = 3500000, Description = "Resort sát vịnh.", ImageUrl = "/images/resort.jpg", IsActive = true }
         };
         db.ServiceProviders.AddRange(providers);
 
-        var routes = new[]
-        {
-            new TransportRoute { Name = "Đà Nẵng - Hội An", FromPlace = "Đà Nẵng", ToPlace = "Hội An", DistanceKm = 30, Description = "Tuyến xe dọc biển.", IsActive = true },
-            new TransportRoute { Name = "Đà Nẵng - Huế", FromPlace = "Đà Nẵng", ToPlace = "Huế", DistanceKm = 100, Description = "Tuyến đèo Hải Vân.", IsActive = true },
-            new TransportRoute { Name = "Đà Nẵng - Nha Trang", FromPlace = "Đà Nẵng", ToPlace = "Nha Trang", DistanceKm = 530, Description = "Tuyến đường dài.", IsActive = true }
-        };
-        db.TransportRoutes.AddRange(routes);
-
         var vehicles = new[]
         {
-            new Vehicle { Name = "Xe 16 chỗ Karnel", VehicleType = "Car", PlateNumber = "43A-10001", SeatCount = 16, IsActive = true },
-            new Vehicle { Name = "Xe giường nằm", VehicleType = "Bus", PlateNumber = "43B-20002", SeatCount = 40, IsActive = true },
-            new Vehicle { Name = "Tàu SE", VehicleType = "Train", PlateNumber = "SE-01", SeatCount = 200, IsActive = true }
+            new Vehicle { VehicleName = "Limousine VIP 9 chỗ", VehicleType = "Limousine", TotalSeats = 9 },
+            new Vehicle { VehicleName = "Xe giường nằm 40 chỗ", VehicleType = "Bus", TotalSeats = 40 },
+            new Vehicle { VehicleName = "Ô tô du lịch 16 chỗ", VehicleType = "Ô tô du lịch", TotalSeats = 16 }
         };
         db.Vehicles.AddRange(vehicles);
         db.SaveChanges();
 
-        db.Promotions.AddRange(
-            new Promotion { Title = "Giảm tour Đà Nẵng", Code = "DANANG10", Description = "Giảm 10% tour Đà Nẵng 2 ngày.", DiscountPercent = 10, StartDate = now.Date, EndDate = now.Date.AddMonths(2), TourPackageId = tours[0].Id, IsActive = true },
-            new Promotion { Title = "Hội An cuối tuần", Code = "HOIAN15", Description = "Giảm 15% tour Hội An về đêm.", DiscountPercent = 15, StartDate = now.Date, EndDate = now.Date.AddMonths(1), TourPackageId = tours[1].Id, IsActive = true },
-            new Promotion { Title = "Ưu đãi mở bán", Code = "WELCOME5", Description = "Giảm 5% cho đơn đầu tiên.", DiscountPercent = 5, StartDate = now.Date, EndDate = now.Date.AddMonths(3), TourPackageId = null, IsActive = true }
-        );
-
-        db.ServiceItems.AddRange(
-            new ServiceItem { ServiceProviderId = providers[0].Id, Name = "Phòng Deluxe", ItemType = "Room", Capacity = 2, Price = 1500000, Description = "View biển, 1 giường lớn.", IsAvailable = true },
-            new ServiceItem { ServiceProviderId = providers[0].Id, Name = "Phòng Family", ItemType = "Room", Capacity = 4, Price = 2200000, Description = "Hai phòng ngủ.", IsAvailable = true },
-            new ServiceItem { ServiceProviderId = providers[1].Id, Name = "Phòng Superior", ItemType = "Room", Capacity = 2, Price = 900000, Description = "Gần phố cổ.", IsAvailable = true },
-            new ServiceItem { ServiceProviderId = providers[2].Id, Name = "Bàn 4 người", ItemType = "Table", Capacity = 4, Price = 0, Description = "Bàn trong nhà.", IsAvailable = true },
-            new ServiceItem { ServiceProviderId = providers[3].Id, Name = "Villa hướng vịnh", ItemType = "Room", Capacity = 3, Price = 3500000, Description = "Villa riêng.", IsAvailable = true }
-        );
+        var routes = new[]
+        {
+            new TransportRoute { DepartureLocationId = locations[0].LocationId, DestinationLocationId = locations[1].LocationId, DistanceKm = 30, EstimatedDuration = "1 giờ" },
+            new TransportRoute { DepartureLocationId = locations[0].LocationId, DestinationLocationId = locations[2].LocationId, DistanceKm = 100, EstimatedDuration = "3 giờ" },
+            new TransportRoute { DepartureLocationId = locations[0].LocationId, DestinationLocationId = locations[3].LocationId, DistanceKm = 530, EstimatedDuration = "12 giờ" }
+        };
+        db.TransportRoutes.AddRange(routes);
+        db.SaveChanges();
 
         db.Schedules.AddRange(
-            new Schedule { TransportRouteId = routes[0].Id, VehicleId = vehicles[0].Id, DepartureTime = new DateTime(2026, 11, 16, 8, 0, 0), ArrivalTime = new DateTime(2026, 11, 16, 9, 0, 0), Price = 150000 },
-            new Schedule { TransportRouteId = routes[1].Id, VehicleId = vehicles[0].Id, DepartureTime = new DateTime(2026, 11, 16, 7, 30, 0), ArrivalTime = new DateTime(2026, 11, 16, 10, 30, 0), Price = 250000 },
-            new Schedule { TransportRouteId = routes[2].Id, VehicleId = vehicles[1].Id, DepartureTime = new DateTime(2026, 11, 16, 18, 0, 0), ArrivalTime = new DateTime(2026, 11, 17, 6, 0, 0), Price = 450000 },
-            new Schedule { TransportRouteId = routes[1].Id, VehicleId = vehicles[2].Id, DepartureTime = new DateTime(2026, 11, 17, 9, 0, 0), ArrivalTime = new DateTime(2026, 11, 17, 12, 0, 0), Price = 180000 }
+            new Schedule { RouteId = routes[0].RouteId, VehicleId = vehicles[2].VehicleId, DepartureTime = new TimeOnly(8, 0), TicketPrice = 150000, Status = "Đang chạy" },
+            new Schedule { RouteId = routes[1].RouteId, VehicleId = vehicles[2].VehicleId, DepartureTime = new TimeOnly(7, 30), TicketPrice = 250000, Status = "Đang chạy" },
+            new Schedule { RouteId = routes[2].RouteId, VehicleId = vehicles[1].VehicleId, DepartureTime = new TimeOnly(18, 0), TicketPrice = 450000, Status = "Đang chạy" },
+            new Schedule { RouteId = routes[1].RouteId, VehicleId = vehicles[0].VehicleId, DepartureTime = new TimeOnly(9, 0), TicketPrice = 350000, Status = "Tạm ngưng" }
+        );
+
+        var promotions = new[]
+        {
+            new Promotion { PromoCode = "DANANG10", Title = "Giảm tour Đà Nẵng", DiscountPercent = 10, StartDate = now.Date, EndDate = now.Date.AddMonths(2), IsActive = true },
+            new Promotion { PromoCode = "HOIAN15", Title = "Hội An cuối tuần", DiscountPercent = 15, StartDate = now.Date, EndDate = now.Date.AddMonths(1), IsActive = true },
+            new Promotion { PromoCode = "WELCOME100", Title = "Ưu đãi mở bán", DiscountAmount = 100000, StartDate = now.Date, EndDate = now.Date.AddMonths(3), IsActive = true }
+        };
+        db.Promotions.AddRange(promotions);
+        db.SaveChanges();
+
+        var tours = new[]
+        {
+            new TourPackage { SpotId = spots[0].SpotId, PromotionId = promotions[0].PromotionId, TourName = "Đà Nẵng 2 ngày 1 đêm", Duration = "2 ngày 1 đêm", StandardPrice = 2500000, SalePrice = 2250000, ItineraryDetail = "Ngày 1: Bà Nà Hills. Ngày 2: biển Mỹ Khê.", IsFeatured = true },
+            new TourPackage { SpotId = spots[2].SpotId, PromotionId = promotions[1].PromotionId, TourName = "Hội An về đêm", Duration = "1 ngày", StandardPrice = 890000, SalePrice = 756500, ItineraryDetail = "Phố cổ, sông Hoài và đèn lồng.", IsFeatured = true },
+            new TourPackage { SpotId = spots[3].SpotId, TourName = "Huế di sản", Duration = "2 ngày 1 đêm", StandardPrice = 2100000, ItineraryDetail = "Đại Nội và lăng tẩm.", IsFeatured = false },
+            new TourPackage { SpotId = spots[4].SpotId, TourName = "Nha Trang đảo", Duration = "1 ngày", StandardPrice = 750000, ItineraryDetail = "Tour vịnh trong ngày.", IsFeatured = false }
+        };
+        db.TourPackages.AddRange(tours);
+
+        db.ServiceItems.AddRange(
+            new ServiceItem { ProviderId = providers[0].ProviderId, ItemName = "Phòng Deluxe", Capacity = 2, Price = 1500000, TotalQuantity = 20, IsAvailable = true },
+            new ServiceItem { ProviderId = providers[0].ProviderId, ItemName = "Phòng Family", Capacity = 4, Price = 2200000, TotalQuantity = 8, IsAvailable = true },
+            new ServiceItem { ProviderId = providers[1].ProviderId, ItemName = "Phòng Superior", Capacity = 2, Price = 900000, TotalQuantity = 15, IsAvailable = true },
+            new ServiceItem { ProviderId = providers[2].ProviderId, ItemName = "Bàn 4 người", Capacity = 4, Price = 0, TotalQuantity = 12, IsAvailable = true },
+            new ServiceItem { ProviderId = providers[3].ProviderId, ItemName = "Villa hướng vịnh", Capacity = 3, Price = 3500000, TotalQuantity = 6, IsAvailable = true }
         );
 
         db.Contacts.AddRange(
-            new Contact { FullName = "Trần Thu Hà", Email = "ha.tran@example.com", Phone = "0912000001", Subject = "Hỏi tour Hội An", Message = "Cho mình xin lịch tour cuối tuần.", Status = "New", CreatedAt = now },
-            new Contact { FullName = "Lê Quốc Bảo", Email = "bao.le@example.com", Phone = "0912000002", Subject = "Đặt xe nhóm", Message = "Nhóm 12 người đi Huế.", Status = "Processed", CreatedAt = now.AddDays(-1), ProcessedAt = now, ProcessedByUser = admin }
+            new Contact { FullName = "Trần Thu Hà", Email = "ha.tran@example.com", Phone = "0912000001", Subject = "Hỏi tour Hội An", Message = "Cho mình xin lịch tour cuối tuần.", IsResponded = false, CreatedAt = now },
+            new Contact { FullName = "Lê Quốc Bảo", Email = "bao.le@example.com", Phone = "0912000002", Subject = "Đặt xe nhóm", Message = "Nhóm 12 người đi Huế.", IsResponded = true, CreatedAt = now.AddDays(-1) }
         );
 
         db.Feedbacks.AddRange(
-            new Feedback { User = user, FullName = user.FullName, Email = user.Email, TargetType = "TouristSpot", TargetId = spots[0].Id, Rating = 5, Content = "Cầu Vàng rất đẹp.", Status = "Approved", CreatedAt = now.AddDays(-2), ReviewedAt = now.AddDays(-1), ReviewedByUser = admin },
-            new Feedback { User = user, FullName = user.FullName, Email = user.Email, TargetType = "Tour", TargetId = tours[1].Id, Rating = 4, Content = "Hướng dẫn viên nhiệt tình.", Status = "Approved", CreatedAt = now.AddDays(-1), ReviewedAt = now, ReviewedByUser = admin },
-            new Feedback { FullName = "Phạm Lan", Email = "lan.pham@example.com", TargetType = "General", Rating = 3, Content = "Web tải hơi chậm.", Status = "Pending", CreatedAt = now },
-            new Feedback { FullName = "Ẩn danh", Email = "an@example.com", TargetType = "Service", TargetId = providers[2].Id, Rating = 2, Content = "Nội dung không phù hợp.", Status = "Hidden", CreatedAt = now.AddDays(-3), ReviewedAt = now.AddDays(-2), ReviewedByUser = admin }
+            new Feedback { FullName = user.FullName, Email = user.Email, Rating = 5, Title = "Cầu Vàng", Content = "Cầu Vàng rất đẹp.", IsApproved = true, CreatedAt = now.AddDays(-2) },
+            new Feedback { FullName = user.FullName, Email = user.Email, Rating = 4, Title = "Tour Hội An", Content = "Hướng dẫn viên nhiệt tình.", IsApproved = true, CreatedAt = now.AddDays(-1) },
+            new Feedback { FullName = "Phạm Lan", Email = "lan.pham@example.com", Rating = 3, Title = "Góp ý website", Content = "Web tải hơi chậm.", IsApproved = false, CreatedAt = now }
         );
-
-        db.Notifications.Add(new Notification
-        {
-            User = user,
-            Title = "Chào mừng đến Karnel",
-            Message = "Tài khoản của bạn đã sẵn sàng.",
-            Type = "System",
-            IsRead = false,
-            CreatedAt = now
-        });
-
-        db.EmailLogs.Add(new EmailLog
-        {
-            ToEmail = user.Email,
-            Subject = "Chào mừng",
-            Body = "Cảm ơn bạn đã đăng ký Karnel Travel Guide.",
-            Status = "Sent",
-            CreatedAt = now
-        });
 
         db.SystemLogs.Add(new SystemLog
         {
             User = admin,
-            Action = "Seed",
-            EntityName = "Database",
-            Detail = "Khởi tạo dữ liệu mẫu.",
-            IpAddress = "127.0.0.1",
+            ActionType = "INSERT",
+            ActionDescription = "Khởi tạo dữ liệu mẫu.",
             CreatedAt = now
         });
-
         db.SaveChanges();
 
         var booking = new Booking
         {
-            Code = "BK20261108001",
-            UserId = user.Id,
+            BookingCode = "BK20261108-001",
+            UserId = user.UserId,
+            CustomerName = user.FullName,
+            CustomerPhone = user.Phone!,
+            CustomerEmail = user.Email,
             BookingType = "Tour",
-            Status = "Confirmed",
-            TotalAmount = 1780000,
-            ContactName = user.FullName,
-            ContactPhone = user.Phone!,
-            ContactEmail = user.Email,
-            Note = "Đi 2 người.",
-            CreatedAt = now,
+            BookingDate = now,
+            StartDate = new DateOnly(2026, 11, 16),
+            TotalPassengers = 2,
+            TotalAmount = 1513000,
+            PaymentStatus = "Đã thanh toán",
+            BookingStatus = "Đã xác nhận",
+            Notes = "Đi 2 người.",
             Details =
             {
                 new BookingDetail
                 {
-                    ItemType = "TourPackage",
-                    ItemId = tours[1].Id,
-                    ItemName = tours[1].Name,
+                    TourId = tours[1].TourId,
                     Quantity = 2,
-                    UnitPrice = 890000,
-                    ServiceDate = new DateTime(2026, 11, 16)
+                    UnitPrice = 756500
                 }
             }
         };
         db.Bookings.Add(booking);
         db.SaveChanges();
-    }
 
-    public static string HashPassword(string password)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-        return Convert.ToHexString(bytes);
+        db.Notifications.Add(new Notification
+        {
+            UserId = user.UserId,
+            Title = "Đơn đã được xác nhận",
+            Message = "Đơn BK20261108-001 đã được xác nhận.",
+            NotificationType = "BOOKING",
+            ReferenceId = booking.BookingCode,
+            IsRead = false,
+            CreatedAt = now
+        });
+        db.EmailLogs.Add(new EmailLog
+        {
+            BookingId = booking.BookingId,
+            UserId = user.UserId,
+            RecipientEmail = user.Email,
+            Subject = "Xác nhận đặt tour thành công",
+            BodyContent = "Đơn BK20261108-001 đã được xác nhận. Ngày khởi hành 16/11/2026.",
+            SendStatus = "SENT",
+            SentAt = now,
+            CreatedAt = now
+        });
+        db.SaveChanges();
     }
 }

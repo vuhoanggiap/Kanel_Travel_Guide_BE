@@ -2,12 +2,14 @@ namespace KarnelTravelGuide.Api.Models;
 
 public class Schedule
 {
-    public int Id { get; set; }
-    public int TransportRouteId { get; set; }
-    public TransportRoute TransportRoute { get; set; } = null!;
+    public int ScheduleId { get; set; }
+    public int RouteId { get; set; }
+    public TransportRoute Route { get; set; } = null!;
     public int VehicleId { get; set; }
     public Vehicle Vehicle { get; set; } = null!;
-    public DateTime DepartureTime { get; set; }
-    public DateTime ArrivalTime { get; set; }
-    public decimal Price { get; set; }
+    public TimeOnly DepartureTime { get; set; }
+    public decimal TicketPrice { get; set; }
+    public string Status { get; set; } = "Đang chạy";
+
+    public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }

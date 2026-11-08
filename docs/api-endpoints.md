@@ -1,5 +1,7 @@
 # Karnel Travel Guide — Tài liệu API (hạn 09/11)
 
+Cột và ràng buộc lấy theo `docs/Thiet_Ke_CSDL_Karnel_Travel_Guide.xlsx`. Tên cột trong SQL Server là snake_case (`user_id`, `spot_name`). JSON bên dưới dùng camelCase.
+
 Base URL khi chạy local: `http://localhost:5098`
 
 OpenAPI: `http://localhost:5098/openapi/v1.json`
@@ -20,10 +22,10 @@ Lần chạy đầu tự tạo database `KarnelTravelGuide`, chạy migration v�
 
 Tài khoản mẫu:
 
-| Vai trò | Email | Mật khẩu |
-|---|---|---|
-| Admin | admin@karnel.local | Admin@123 |
-| User | user@karnel.local | User@123 |
+| Vai trò | Username | Email | Mật khẩu |
+|---|---|---|---|
+| Admin | admin | admin@karnel.local | Admin@123 |
+| User | minhan | user@karnel.local | User@123 |
 
 CORS đang mở cho `http://localhost:5173`, `http://localhost:3000`, `http://localhost:4200`.
 
@@ -38,16 +40,17 @@ Authorization: Bearer {token}
 ## Giá trị dùng chung
 
 - `role`: `Admin`, `User`
-- Liên hệ `status`: `New`, `Processed`
-- Phản hồi `status`: `Pending`, `Approved`, `Hidden`
-- Phản hồi `targetType`: `General`, `TouristSpot`, `Tour`, `Service`
-- Thông báo `type`: `System`, `Booking`, `Promotion`
-- Dịch vụ `type`: `Hotel`, `Restaurant`, `Resort`
-- Hạng mục `itemType`: `Room`, `Table`
-- Xe `vehicleType`: `Bus`, `Car`, `Train`
-- Đơn `bookingType`: `Tour`, `Hotel`, `Restaurant`, `Resort`, `Transport`
-- Đơn `status`: `Pending`, `Confirmed`, `Cancelled`, `Completed`
-- Dòng đơn `itemType`: `TourPackage`, `ServiceItem`, `Schedule`
+- Liên hệ `isResponded`: `false` chưa xử lý, `true` đã phản hồi
+- Phản hồi `isApproved`: `true` hiện trên web, `false` đang ẩn hoặc chờ duyệt
+- Thông báo `notificationType`: `BOOKING`, `PROMOTION`, `SYSTEM`
+- Dịch vụ `serviceType`: `Hotel`, `Resort`, `Restaurant`
+- Xe `vehicleType`: ví dụ `Bus`, `Limousine`, `Ô tô du lịch`
+- Lịch chạy `status`: `Đang chạy`, `Tạm ngưng`
+- Đơn `bookingType`: `Tour`, `Transport`, `Combo`
+- Đơn `paymentStatus`: `Chưa thanh toán`, `Đã thanh toán`
+- Đơn `bookingStatus`: `Chờ duyệt`, `Đã xác nhận`, `Hoàn tất`, `Hủy`
+- Dòng đơn gắn một trong ba khóa: `tourId`, `scheduleId`, `serviceItemId`
+- Vùng miền `region`: `Miền Bắc`, `Miền Trung`, `Miền Nam`
 
 Lỗi dùng chung:
 
@@ -76,10 +79,12 @@ Lỗi dùng chung:
 
 ```json
 {
+  "username": "minhan2",
   "fullName": "Nguyễn Minh An",
   "email": "an.nguyen@example.com",
   "password": "User@123",
-  "phone": "0901000002"
+  "phone": "0901000002",
+  "address": "Sơn Trà, Đà Nẵng"
 }
 ```
 
@@ -87,11 +92,13 @@ Trả về `201`:
 
 ```json
 {
-  "id": 3,
+  "userId": 3,
+  "username": "minhan2",
   "fullName": "Nguyễn Minh An",
   "email": "an.nguyen@example.com",
   "phone": "0901000002",
-  "role": "User"
+  "role": "User",
+  "isActive": true
 }
 ```
 
@@ -101,7 +108,7 @@ Trả về `201`:
 
 ```json
 {
-  "email": "admin@karnel.local",
+  "username": "admin",
   "password": "Admin@123"
 }
 ```
@@ -110,7 +117,8 @@ Trả về `201`:
 {
   "token": "jwt-se-co-o-han-13-11",
   "user": {
-    "id": 1,
+    "userId": 1,
+    "username": "admin",
     "fullName": "Quản trị Karnel",
     "email": "admin@karnel.local",
     "role": "Admin"
@@ -161,13 +169,15 @@ Hai API này đi cùng gửi email, hạn 17/11.
 
 ```json
 {
-  "id": 2,
+  "userId": 2,
+  "username": "minhan",
   "fullName": "Nguyễn Minh An",
   "email": "user@karnel.local",
   "phone": "0901000002",
   "address": "Sơn Trà, Đà Nẵng",
-  "avatarUrl": null,
-  "role": "User"
+  "role": "User",
+  "deviceToken": null,
+  "isActive": true
 }
 ```
 
@@ -178,7 +188,7 @@ Hai API này đi cùng gửi email, hạn 17/11.
   "fullName": "Nguyễn Minh An",
   "phone": "0901000009",
   "address": "Hải Châu, Đà Nẵng",
-  "avatarUrl": "/images/avatar.jpg"
+  "deviceToken": null
 }
 ```
 
@@ -189,7 +199,8 @@ Hai API này đi cùng gửi email, hạn 17/11.
 ```json
 [
   {
-    "id": 2,
+    "userId": 2,
+    "username": "minhan",
     "fullName": "Nguyễn Minh An",
     "email": "user@karnel.local",
     "phone": "0901000002",
@@ -226,9 +237,9 @@ Hai API này đi cùng gửi email, hạn 17/11.
 
 ```json
 {
-  "id": 1,
-  "status": "New",
-  "createdAt": "2026-11-08T08:00:00Z"
+  "contactId": 1,
+  "isResponded": false,
+  "createdAt": "2026-11-08T08:00:00"
 }
 ```
 
@@ -239,22 +250,21 @@ Hai API này đi cùng gửi email, hạn 17/11.
 ```json
 [
   {
-    "id": 1,
+    "contactId": 1,
     "fullName": "Trần Thu Hà",
     "email": "ha.tran@example.com",
     "phone": "0912000001",
     "subject": "Hỏi tour Hội An",
     "message": "Cho mình xin lịch tour cuối tuần.",
-    "status": "New",
-    "createdAt": "2026-11-08T08:00:00Z",
-    "processedAt": null
+    "isResponded": false,
+    "createdAt": "2026-11-08T08:00:00"
   }
 ]
 ```
 
 ### Đánh dấu đã xử lý (Admin)
 
-`PUT /api/contacts/{id}/processed` — trả về `204`.
+`PUT /api/contacts/{id}/responded` — đặt `isResponded = true`. Trả về `204`.
 
 ### Gửi phản hồi
 
@@ -264,53 +274,49 @@ Hai API này đi cùng gửi email, hạn 17/11.
 {
   "fullName": "Nguyễn Minh An",
   "email": "user@karnel.local",
-  "targetType": "TouristSpot",
-  "targetId": 1,
   "rating": 5,
+  "title": "Cầu Vàng",
   "content": "Cầu Vàng rất đẹp."
 }
 ```
 
 ```json
 {
-  "id": 3,
-  "status": "Pending"
+  "feedbackId": 3,
+  "isApproved": false
 }
 ```
 
 ### Phản hồi đã duyệt (trang công khai)
 
-`GET /api/feedbacks?targetType=TouristSpot&targetId=1`
+`GET /api/feedbacks`
 
 ```json
 [
   {
-    "id": 1,
+    "feedbackId": 1,
     "fullName": "Nguyễn Minh An",
-    "targetType": "TouristSpot",
-    "targetId": 1,
     "rating": 5,
+    "title": "Cầu Vàng",
     "content": "Cầu Vàng rất đẹp.",
-    "createdAt": "2026-11-06T08:00:00Z"
+    "createdAt": "2026-11-06T08:00:00"
   }
 ]
 ```
 
-Chỉ trả bản ghi `Approved`.
+Chỉ trả bản ghi `isApproved = true`.
 
 ### Quản lý phản hồi (Admin)
 
 `GET /api/feedbacks/manage`
 
-`PUT /api/feedbacks/{id}/status`
+`PUT /api/feedbacks/{id}/approval`
 
 ```json
 {
-  "status": "Approved"
+  "isApproved": true
 }
 ```
-
-`status` nhận `Approved` hoặc `Hidden`.
 
 ## Thông báo, nhật ký, backup — Giáp (code hạn 17/11)
 
@@ -319,12 +325,13 @@ Chỉ trả bản ghi `Approved`.
 ```json
 [
   {
-    "id": 1,
-    "title": "Chào mừng đến Karnel",
-    "message": "Tài khoản của bạn đã sẵn sàng.",
-    "type": "System",
+    "notificationId": 1,
+    "title": "Đơn đã được xác nhận",
+    "message": "Đơn BK20261108-001 đã được xác nhận.",
+    "notificationType": "BOOKING",
+    "referenceId": "BK20261108-001",
     "isRead": false,
-    "createdAt": "2026-11-08T08:00:00Z"
+    "createdAt": "2026-11-08T08:00:00"
   }
 ]
 ```
@@ -336,12 +343,11 @@ Chỉ trả bản ghi `Approved`.
 ```json
 [
   {
-    "id": 1,
-    "action": "Seed",
-    "entityName": "Database",
-    "entityId": null,
-    "detail": "Khởi tạo dữ liệu mẫu.",
-    "createdAt": "2026-11-08T08:00:00Z"
+    "logId": 1,
+    "userId": 1,
+    "actionType": "INSERT",
+    "actionDescription": "Khởi tạo dữ liệu mẫu.",
+    "createdAt": "2026-11-08T08:00:00"
   }
 ]
 ```
@@ -356,39 +362,42 @@ Chỉ trả bản ghi `Approved`.
 {
   "spots": [
     {
-      "id": 1,
-      "name": "Bà Nà Hills",
+      "spotId": 1,
+      "spotName": "Bà Nà Hills",
       "locationName": "Đà Nẵng",
-      "categoryName": "Núi",
-      "imageUrl": "/images/ba-na.jpg",
-      "ticketPrice": 900000
+      "categoryName": "Sinh thái",
+      "thumbnailUrl": "/images/ba-na.jpg",
+      "isFeatured": true
     }
   ],
   "tours": [
     {
-      "id": 1,
-      "name": "Đà Nẵng 2 ngày",
-      "price": 2500000,
-      "durationDays": 2,
-      "imageUrl": "/images/tour-danang.jpg"
+      "tourId": 1,
+      "tourName": "Đà Nẵng 2 ngày 1 đêm",
+      "duration": "2 ngày 1 đêm",
+      "standardPrice": 2500000,
+      "salePrice": 2250000,
+      "isFeatured": true
     }
   ],
   "promotions": [
     {
-      "id": 1,
+      "promotionId": 1,
       "title": "Giảm tour Đà Nẵng",
-      "code": "DANANG10",
+      "promoCode": "DANANG10",
       "discountPercent": 10
     }
   ]
 }
 ```
 
+Trang chủ lấy `TouristSpots.isFeatured = true` và `TourPackages.isFeatured = true`.
+
 `GET /api/locations`
 
 ```json
 [
-  { "id": 1, "name": "Đà Nẵng", "city": "Đà Nẵng", "province": "Đà Nẵng" }
+  { "locationId": 1, "locationName": "Đà Nẵng", "region": "Miền Trung" }
 ]
 ```
 
@@ -396,24 +405,24 @@ Chỉ trả bản ghi `Approved`.
 
 ```json
 [
-  { "id": 1, "name": "Biển", "description": "Điểm đến ven biển." }
+  { "categoryId": 1, "categoryName": "Du lịch biển" }
 ]
 ```
 
-`GET /api/tourist-spots?locationId=1&categoryTypeId=2&q=Hội`
+`GET /api/tourist-spots?locationId=2&categoryId=2&q=Hội`
 
 ```json
 [
   {
-    "id": 3,
-    "name": "Phố cổ Hội An",
+    "spotId": 3,
+    "spotName": "Phố cổ Hội An",
     "locationId": 2,
-    "locationName": "Hội An",
-    "categoryTypeId": 2,
-    "categoryName": "Di tích",
-    "address": "Minh An, Hội An",
-    "ticketPrice": 120000,
-    "imageUrl": "/images/hoi-an.jpg"
+    "locationName": "Quảng Nam",
+    "categoryId": 2,
+    "categoryName": "Văn hóa - Di tích",
+    "thumbnailUrl": "/images/hoi-an.jpg",
+    "description": "Khu phố cổ bên sông Hoài.",
+    "isFeatured": true
   }
 ]
 ```
@@ -422,18 +431,17 @@ Chỉ trả bản ghi `Approved`.
 
 ```json
 {
-  "id": 1,
-  "name": "Bà Nà Hills",
+  "spotId": 1,
   "locationId": 1,
   "locationName": "Đà Nẵng",
-  "categoryTypeId": 3,
-  "categoryName": "Núi",
+  "categoryId": 3,
+  "categoryName": "Sinh thái",
+  "spotName": "Bà Nà Hills",
+  "thumbnailUrl": "/images/ba-na.jpg",
   "description": "Khu du lịch trên núi với cầu Vàng.",
-  "address": "Hòa Ninh, Hòa Vang, Đà Nẵng",
-  "openTime": "07:00-22:00",
-  "ticketPrice": 900000,
-  "imageUrl": "/images/ba-na.jpg",
-  "isActive": true
+  "detailedContent": "Bà Nà Hills nằm ở Hòa Vang, Đà Nẵng.",
+  "isFeatured": true,
+  "createdAt": "2026-11-08T08:00:00"
 }
 ```
 
@@ -445,16 +453,16 @@ Chỉ trả bản ghi `Approved`.
 
 ```json
 {
-  "id": 1,
-  "name": "Đà Nẵng 2 ngày",
-  "touristSpotId": 1,
-  "touristSpotName": "Bà Nà Hills",
-  "description": "Bà Nà Hills và biển Mỹ Khê.",
-  "durationDays": 2,
-  "price": 2500000,
-  "maxGuests": 20,
-  "imageUrl": "/images/tour-danang.jpg",
-  "isActive": true
+  "tourId": 1,
+  "spotId": 1,
+  "spotName": "Bà Nà Hills",
+  "promotionId": 1,
+  "tourName": "Đà Nẵng 2 ngày 1 đêm",
+  "duration": "2 ngày 1 đêm",
+  "standardPrice": 2500000,
+  "salePrice": 2250000,
+  "itineraryDetail": "Ngày 1: Bà Nà Hills. Ngày 2: biển Mỹ Khê.",
+  "isFeatured": true
 }
 ```
 
@@ -465,14 +473,13 @@ Chỉ trả bản ghi `Approved`.
 ```json
 [
   {
-    "id": 1,
+    "promotionId": 1,
+    "promoCode": "DANANG10",
     "title": "Giảm tour Đà Nẵng",
-    "code": "DANANG10",
-    "description": "Giảm 10% tour Đà Nẵng 2 ngày.",
     "discountPercent": 10,
-    "startDate": "2026-11-08T00:00:00Z",
-    "endDate": "2027-01-08T00:00:00Z",
-    "tourPackageId": 1,
+    "discountAmount": null,
+    "startDate": "2026-11-08T00:00:00",
+    "endDate": "2027-01-08T00:00:00",
     "isActive": true
   }
 ]
@@ -489,14 +496,16 @@ Chỉ trả bản ghi `Approved`.
 ```json
 [
   {
-    "id": 1,
-    "name": "Karnel Beach Hotel",
-    "type": "Hotel",
+    "providerId": 1,
+    "providerName": "Karnel Beach Hotel",
+    "serviceType": "Hotel",
     "locationId": 1,
     "locationName": "Đà Nẵng",
     "address": "Võ Nguyên Giáp, Đà Nẵng",
     "phone": "02361111001",
     "starRating": 4,
+    "minPrice": 1500000,
+    "maxPrice": 2200000,
     "imageUrl": "/images/hotel-beach.jpg"
   }
 ]
@@ -506,24 +515,27 @@ Chỉ trả bản ghi `Approved`.
 
 ```json
 {
-  "id": 1,
-  "name": "Karnel Beach Hotel",
-  "type": "Hotel",
+  "providerId": 1,
+  "providerName": "Karnel Beach Hotel",
+  "serviceType": "Hotel",
   "locationId": 1,
   "locationName": "Đà Nẵng",
   "address": "Võ Nguyên Giáp, Đà Nẵng",
   "description": "Khách sạn view biển.",
   "phone": "02361111001",
+  "website": "https://karnel.local/beach-hotel",
   "starRating": 4,
+  "minPrice": 1500000,
+  "maxPrice": 2200000,
   "imageUrl": "/images/hotel-beach.jpg",
+  "isActive": true,
   "items": [
     {
-      "id": 1,
-      "name": "Phòng Deluxe",
-      "itemType": "Room",
+      "itemId": 1,
+      "itemName": "Phòng Deluxe",
       "capacity": 2,
       "price": 1500000,
-      "description": "View biển, 1 giường lớn.",
+      "totalQuantity": 20,
       "isAvailable": true
     }
   ]
@@ -548,7 +560,7 @@ Chỉ trả bản ghi `Approved`.
 
 Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
-`GET /api/search/advanced?q=biển&locationId=1&categoryTypeId=1&type=Hotel&minPrice=0&maxPrice=3000000&sort=price_asc`
+`GET /api/search/advanced?locationId=1&serviceType=Hotel&minPrice=0&maxPrice=3000000&starRating=4&sort=price_asc`
 
 `sort` nhận `price_asc`, `price_desc`, `name_asc`.
 
@@ -559,11 +571,13 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 ```json
 [
   {
-    "id": 1,
-    "name": "Đà Nẵng - Hội An",
-    "fromPlace": "Đà Nẵng",
-    "toPlace": "Hội An",
-    "distanceKm": 30
+    "routeId": 1,
+    "departureLocationId": 1,
+    "departureLocationName": "Đà Nẵng",
+    "destinationLocationId": 2,
+    "destinationLocationName": "Quảng Nam",
+    "distanceKm": 30,
+    "estimatedDuration": "1 giờ"
   }
 ]
 ```
@@ -572,21 +586,22 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
 ```json
 {
-  "id": 1,
-  "name": "Đà Nẵng - Hội An",
-  "fromPlace": "Đà Nẵng",
-  "toPlace": "Hội An",
+  "routeId": 1,
+  "departureLocationId": 1,
+  "departureLocationName": "Đà Nẵng",
+  "destinationLocationId": 2,
+  "destinationLocationName": "Quảng Nam",
   "distanceKm": 30,
-  "description": "Tuyến xe dọc biển.",
+  "estimatedDuration": "1 giờ",
   "schedules": [
     {
-      "id": 1,
-      "vehicleId": 1,
-      "vehicleName": "Xe 16 chỗ Karnel",
-      "vehicleType": "Car",
-      "departureTime": "2026-11-16T08:00:00",
-      "arrivalTime": "2026-11-16T09:00:00",
-      "price": 150000
+      "scheduleId": 1,
+      "vehicleId": 3,
+      "vehicleName": "Ô tô du lịch 16 chỗ",
+      "vehicleType": "Ô tô du lịch",
+      "departureTime": "08:00:00",
+      "ticketPrice": 150000,
+      "status": "Đang chạy"
     }
   ]
 }
@@ -600,11 +615,9 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
 ```json
 {
-  "name": "Xe 16 chỗ Karnel",
-  "vehicleType": "Car",
-  "plateNumber": "43A-10001",
-  "seatCount": 16,
-  "isActive": true
+  "vehicleName": "Ô tô du lịch 16 chỗ",
+  "vehicleType": "Ô tô du lịch",
+  "totalSeats": 16
 }
 ```
 
@@ -614,11 +627,11 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
 ```json
 {
-  "transportRouteId": 1,
-  "vehicleId": 1,
-  "departureTime": "2026-11-16T08:00:00",
-  "arrivalTime": "2026-11-16T09:00:00",
-  "price": 150000
+  "routeId": 1,
+  "vehicleId": 3,
+  "departureTime": "08:00:00",
+  "ticketPrice": 150000,
+  "status": "Đang chạy"
 }
 ```
 
@@ -628,18 +641,17 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
 ```json
 {
+  "customerName": "Nguyễn Minh An",
+  "customerPhone": "0901000002",
+  "customerEmail": "user@karnel.local",
   "bookingType": "Tour",
-  "contactName": "Nguyễn Minh An",
-  "contactPhone": "0901000002",
-  "contactEmail": "user@karnel.local",
-  "note": "Đi 2 người.",
-  "promotionCode": "HOIAN15",
+  "startDate": "2026-11-16",
+  "totalPassengers": 2,
+  "notes": "Đi 2 người.",
   "details": [
     {
-      "itemType": "TourPackage",
-      "itemId": 2,
-      "quantity": 2,
-      "serviceDate": "2026-11-16"
+      "tourId": 2,
+      "quantity": 2
     }
   ]
 }
@@ -647,12 +659,13 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
 ```json
 {
-  "id": 1,
-  "code": "BK20261108001",
+  "bookingId": 1,
+  "bookingCode": "BK20261108-001",
   "bookingType": "Tour",
-  "status": "Pending",
+  "bookingStatus": "Chờ duyệt",
+  "paymentStatus": "Chưa thanh toán",
   "totalAmount": 1513000,
-  "createdAt": "2026-11-08T08:00:00Z"
+  "bookingDate": "2026-11-08T08:00:00"
 }
 ```
 
@@ -662,24 +675,28 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 
 ```json
 {
-  "id": 1,
-  "code": "BK20261108001",
+  "bookingId": 1,
+  "bookingCode": "BK20261108-001",
+  "userId": 2,
+  "customerName": "Nguyễn Minh An",
+  "customerPhone": "0901000002",
+  "customerEmail": "user@karnel.local",
   "bookingType": "Tour",
-  "status": "Confirmed",
-  "totalAmount": 1780000,
-  "contactName": "Nguyễn Minh An",
-  "contactPhone": "0901000002",
-  "contactEmail": "user@karnel.local",
-  "note": "Đi 2 người.",
-  "createdAt": "2026-11-08T08:00:00Z",
+  "bookingDate": "2026-11-08T08:00:00",
+  "startDate": "2026-11-16",
+  "totalPassengers": 2,
+  "totalAmount": 1513000,
+  "paymentStatus": "Đã thanh toán",
+  "bookingStatus": "Đã xác nhận",
+  "notes": "Đi 2 người.",
   "details": [
     {
-      "itemType": "TourPackage",
-      "itemId": 2,
-      "itemName": "Hội An về đêm",
+      "detailId": 1,
+      "tourId": 2,
+      "scheduleId": null,
+      "serviceItemId": null,
       "quantity": 2,
-      "unitPrice": 890000,
-      "serviceDate": "2026-11-16T00:00:00"
+      "unitPrice": 756500
     }
   ]
 }
@@ -693,13 +710,14 @@ Mỗi mảng dùng JSON rút gọn của danh sách tương ứng.
 }
 ```
 
-`GET /api/bookings/manage?status=Pending` (Admin).
+`GET /api/bookings/manage?bookingStatus=Chờ duyệt` (Admin).
 
 `PUT /api/bookings/{id}/status` (Admin)
 
 ```json
 {
-  "status": "Confirmed"
+  "bookingStatus": "Đã xác nhận",
+  "paymentStatus": "Đã thanh toán"
 }
 ```
 

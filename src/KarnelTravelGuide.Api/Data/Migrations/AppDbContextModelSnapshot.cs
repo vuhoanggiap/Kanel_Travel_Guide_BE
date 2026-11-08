@@ -24,572 +24,696 @@ namespace KarnelTravelGuide.Api.Data.Migrations
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Booking", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("booking_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
+
+                    b.Property<string>("BookingCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("booking_code");
+
+                    b.Property<DateTime>("BookingDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("booking_date")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("BookingStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Chờ duyệt")
+                        .HasColumnName("booking_status");
 
                     b.Property<string>("BookingType")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("booking_type");
 
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("CustomerEmail")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("customer_email");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("customer_name");
+
+                    b.Property<string>("CustomerPhone")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("customer_phone");
 
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.Property<string>("ContactName")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("ContactPhone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
+                    b.Property<string>("Notes")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("notes");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("PaymentStatus")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Chưa thanh toán")
+                        .HasColumnName("payment_status");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("total_amount");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<int>("TotalPassengers")
+                        .HasColumnType("int")
+                        .HasColumnName("total_passengers");
 
-                    b.HasKey("Id");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
-                    b.HasIndex("Code")
+                    b.HasKey("BookingId");
+
+                    b.HasIndex("BookingCode")
                         .IsUnique();
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Bookings_Payment", "[payment_status] IN (N'Chưa thanh toán', N'Đã thanh toán')");
+
+                            t.HasCheckConstraint("CK_Bookings_Status", "[booking_status] IN (N'Chờ duyệt', N'Đã xác nhận', N'Hoàn tất', N'Hủy')");
+
+                            t.HasCheckConstraint("CK_Bookings_Type", "[booking_type] IN ('Tour', 'Transport', 'Combo')");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.BookingDetail", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("DetailId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("detail_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DetailId"));
 
                     b.Property<int>("BookingId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("int")
+                        .HasColumnName("booking_id");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1)
+                        .HasColumnName("quantity");
 
-                    b.Property<DateTime>("ServiceDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("ScheduleId")
+                        .HasColumnType("int")
+                        .HasColumnName("schedule_id");
+
+                    b.Property<int?>("ServiceItemId")
+                        .HasColumnType("int")
+                        .HasColumnName("service_item_id");
+
+                    b.Property<int?>("TourId")
+                        .HasColumnType("int")
+                        .HasColumnName("tour_id");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("unit_price");
 
-                    b.HasKey("Id");
+                    b.HasKey("DetailId");
 
                     b.HasIndex("BookingId");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.HasIndex("ServiceItemId");
+
+                    b.HasIndex("TourId");
 
                     b.ToTable("BookingDetails", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.CategoryType", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("category_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("category_name");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.ToTable("CategoryTypes", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Contact", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ContactId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("contact_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContactId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("full_name");
+
+                    b.Property<bool>("IsResponded")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_responded");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("message");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime?>("ProcessedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ProcessedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("phone");
 
                     b.Property<string>("Subject")
-                        .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("subject");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProcessedByUserId");
+                    b.HasKey("ContactId");
 
                     b.ToTable("Contacts", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.EmailLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("EmailLogId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("email_log_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmailLogId"));
 
-                    b.Property<string>("Body")
+                    b.Property<string>("BodyContent")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("body_content");
+
+                    b.Property<int?>("BookingId")
+                        .HasColumnType("int")
+                        .HasColumnName("booking_id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("ErrorMessage")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("error_message");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("RecipientEmail")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("recipient_email");
+
+                    b.Property<string>("SendStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasDefaultValue("PENDING")
+                        .HasColumnName("send_status");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("sent_at");
 
                     b.Property<string>("Subject")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("subject");
 
-                    b.Property<string>("ToEmail")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmailLogId");
 
-                    b.ToTable("EmailLogs", (string)null);
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmailLogs", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_EmailLogs_Status", "[send_status] IN ('PENDING', 'SENT', 'FAILED')");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Feedback", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("FeedbackId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("feedback_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeedbackId"));
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("full_name");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsApproved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_approved");
 
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int")
+                        .HasColumnName("rating");
 
-                    b.Property<int?>("ReviewedByUserId")
-                        .HasColumnType("int");
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("title");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.HasKey("FeedbackId");
 
-                    b.Property<int?>("TargetId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TargetType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewedByUserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Feedbacks", (string)null);
+                    b.ToTable("Feedbacks", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Feedbacks_Rating", "[rating] IS NULL OR [rating] BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Location", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("LocationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("location_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LocationId"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("LocationName")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("location_name");
 
-                    b.Property<string>("Province")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                    b.Property<string>("Region")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("region");
 
-                    b.HasKey("Id");
+                    b.HasKey("LocationId");
 
                     b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Notification", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("NotificationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("notification_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_read");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasDefaultValue("BOOKING")
+                        .HasColumnName("notification_type");
+
+                    b.Property<string>("ReferenceId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("reference_id");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("title");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("NotificationId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Notifications_Type", "[notification_type] IN ('BOOKING', 'PROMOTION', 'SYSTEM')");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Promotion", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PromotionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("promotion_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PromotionId"));
 
-                    b.Property<string>("Code")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("discount_amount");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal>("DiscountPercent")
+                    b.Property<decimal?>("DiscountPercent")
                         .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("discount_percent");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime")
+                        .HasColumnName("end_date");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("PromoCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("promo_code");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime")
+                        .HasColumnName("start_date");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("title");
 
-                    b.Property<int?>("TourPackageId")
-                        .HasColumnType("int");
+                    b.HasKey("PromotionId");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
+                    b.HasIndex("PromoCode")
                         .IsUnique()
-                        .HasFilter("[Code] IS NOT NULL");
-
-                    b.HasIndex("TourPackageId");
+                        .HasFilter("[promo_code] IS NOT NULL");
 
                     b.ToTable("Promotions", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Schedule", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ScheduleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("schedule_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleId"));
 
-                    b.Property<DateTime>("ArrivalTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeOnly>("DepartureTime")
+                        .HasColumnType("time")
+                        .HasColumnName("departure_time");
 
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("RouteId")
+                        .HasColumnType("int")
+                        .HasColumnName("route_id");
 
-                    b.Property<decimal>("Price")
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Đang chạy")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("TicketPrice")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TransportRouteId")
-                        .HasColumnType("int");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("ticket_price");
 
                     b.Property<int>("VehicleId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("vehicle_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("ScheduleId");
 
-                    b.HasIndex("TransportRouteId");
+                    b.HasIndex("RouteId");
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Schedules", (string)null);
+                    b.ToTable("Schedules", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Schedules_Status", "[status] IN (N'Đang chạy', N'Tạm ngưng')");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.ServiceItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ItemId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("item_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
 
-                    b.Property<int>("Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("int")
+                        .HasColumnName("capacity");
 
                     b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_available");
 
-                    b.Property<string>("ItemType")
+                    b.Property<string>("ItemName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("item_name");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
 
-                    b.Property<int>("ServiceProviderId")
-                        .HasColumnType("int");
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("int")
+                        .HasColumnName("provider_id");
 
-                    b.HasKey("Id");
+                    b.Property<int>("TotalQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1)
+                        .HasColumnName("total_quantity");
 
-                    b.HasIndex("ServiceProviderId");
+                    b.HasKey("ItemId");
+
+                    b.HasIndex("ProviderId");
 
                     b.ToTable("ServiceItems", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.ServiceProvider", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ProviderId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("provider_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProviderId"));
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("address");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
 
                     b.Property<string>("ImageUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("image_url");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
 
                     b.Property<int>("LocationId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("location_id");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                    b.Property<decimal?>("MaxPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("max_price");
+
+                    b.Property<decimal?>("MinPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("min_price");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("phone");
 
-                    b.Property<int?>("StarRating")
-                        .HasColumnType("int");
+                    b.Property<string>("ProviderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("provider_name");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("ServiceType")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("service_type");
 
-                    b.HasKey("Id");
+                    b.Property<int?>("StarRating")
+                        .HasColumnType("int")
+                        .HasColumnName("star_rating");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("website");
+
+                    b.HasKey("ProviderId");
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("ServiceProviders", (string)null);
+                    b.ToTable("ServiceProviders", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ServiceProviders_Star", "[star_rating] IS NULL OR [star_rating] BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("CK_ServiceProviders_Type", "[service_type] IN ('Hotel', 'Resort', 'Restaurant')");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.SystemLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("LogId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("log_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogId"));
 
-                    b.Property<string>("Action")
+                    b.Property<string>("ActionDescription")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("action_description");
+
+                    b.Property<string>("ActionType")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("action_type");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Detail")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("EntityId")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("EntityName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<int?>("UserId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("LogId");
 
                     b.HasIndex("UserId");
 
@@ -598,96 +722,113 @@ namespace KarnelTravelGuide.Api.Data.Migrations
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.TourPackage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TourId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("tour_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TourId"));
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Duration")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("duration");
 
-                    b.Property<int>("DurationDays")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsFeatured")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_featured");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                    b.Property<string>("ItineraryDetail")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("itinerary_detail");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<int?>("PromotionId")
+                        .HasColumnType("int")
+                        .HasColumnName("promotion_id");
 
-                    b.Property<int>("MaxGuests")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.Property<decimal>("Price")
+                    b.Property<decimal?>("SalePrice")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("sale_price");
 
-                    b.Property<int?>("TouristSpotId")
-                        .HasColumnType("int");
+                    b.Property<int?>("SpotId")
+                        .HasColumnType("int")
+                        .HasColumnName("spot_id");
 
-                    b.HasKey("Id");
+                    b.Property<decimal>("StandardPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("standard_price");
 
-                    b.HasIndex("TouristSpotId");
+                    b.Property<string>("TourName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("tour_name");
+
+                    b.HasKey("TourId");
+
+                    b.HasIndex("PromotionId");
+
+                    b.HasIndex("SpotId");
 
                     b.ToTable("TourPackages", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.TouristSpot", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("SpotId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("spot_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SpotId"));
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int")
+                        .HasColumnName("category_id");
 
-                    b.Property<int>("CategoryTypeId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                    b.Property<string>("DetailedContent")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("detailed_content");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsFeatured")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_featured");
 
                     b.Property<int>("LocationId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("location_id");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("SpotName")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("spot_name");
 
-                    b.Property<string>("OpenTime")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("thumbnail_url");
 
-                    b.Property<decimal>("TicketPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.HasKey("SpotId");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryTypeId");
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("LocationId");
 
@@ -696,133 +837,148 @@ namespace KarnelTravelGuide.Api.Data.Migrations
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.TransportRoute", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RouteId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("route_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RouteId"));
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<int>("DepartureLocationId")
+                        .HasColumnType("int")
+                        .HasColumnName("departure_location_id");
 
-                    b.Property<decimal>("DistanceKm")
-                        .HasPrecision(8, 1)
-                        .HasColumnType("decimal(8,1)");
+                    b.Property<int>("DestinationLocationId")
+                        .HasColumnType("int")
+                        .HasColumnName("destination_location_id");
 
-                    b.Property<string>("FromPlace")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                    b.Property<decimal?>("DistanceKm")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)")
+                        .HasColumnName("distance_km");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("EstimatedDuration")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("estimated_duration");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                    b.HasKey("RouteId");
 
-                    b.Property<string>("ToPlace")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                    b.HasIndex("DepartureLocationId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("DestinationLocationId");
 
                     b.ToTable("TransportRoutes", (string)null);
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("Address")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("AvatarUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("address");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("DeviceToken")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("device_token");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("full_name");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("password_hash");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("phone");
 
                     b.Property<string>("Role")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("User")
+                        .HasColumnName("role");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("username");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_Role", "[role] IN ('Admin', 'User')");
+                        });
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Vehicle", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("VehicleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("vehicle_id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VehicleId"));
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<int>("TotalSeats")
+                        .HasColumnType("int")
+                        .HasColumnName("total_seats");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("VehicleName")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("PlateNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("SeatCount")
-                        .HasColumnType("int");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("vehicle_name");
 
                     b.Property<string>("VehicleType")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("vehicle_type");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlateNumber")
-                        .IsUnique();
+                    b.HasKey("VehicleId");
 
                     b.ToTable("Vehicles", (string)null);
                 });
@@ -832,8 +988,7 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                     b.HasOne("KarnelTravelGuide.Api.Models.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
                 });
@@ -846,32 +1001,43 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Booking");
-                });
-
-            modelBuilder.Entity("KarnelTravelGuide.Api.Models.Contact", b =>
-                {
-                    b.HasOne("KarnelTravelGuide.Api.Models.User", "ProcessedByUser")
-                        .WithMany()
-                        .HasForeignKey("ProcessedByUserId")
+                    b.HasOne("KarnelTravelGuide.Api.Models.Schedule", "Schedule")
+                        .WithMany("BookingDetails")
+                        .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("ProcessedByUser");
+                    b.HasOne("KarnelTravelGuide.Api.Models.ServiceItem", "ServiceItem")
+                        .WithMany("BookingDetails")
+                        .HasForeignKey("ServiceItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("KarnelTravelGuide.Api.Models.TourPackage", "TourPackage")
+                        .WithMany("BookingDetails")
+                        .HasForeignKey("TourId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Schedule");
+
+                    b.Navigation("ServiceItem");
+
+                    b.Navigation("TourPackage");
                 });
 
-            modelBuilder.Entity("KarnelTravelGuide.Api.Models.Feedback", b =>
+            modelBuilder.Entity("KarnelTravelGuide.Api.Models.EmailLog", b =>
                 {
-                    b.HasOne("KarnelTravelGuide.Api.Models.User", "ReviewedByUser")
-                        .WithMany()
-                        .HasForeignKey("ReviewedByUserId")
+                    b.HasOne("KarnelTravelGuide.Api.Models.Booking", "Booking")
+                        .WithMany("EmailLogs")
+                        .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("KarnelTravelGuide.Api.Models.User", "User")
-                        .WithMany("Feedbacks")
+                        .WithMany("EmailLogs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("ReviewedByUser");
+                    b.Navigation("Booking");
 
                     b.Navigation("User");
                 });
@@ -887,21 +1053,11 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("KarnelTravelGuide.Api.Models.Promotion", b =>
-                {
-                    b.HasOne("KarnelTravelGuide.Api.Models.TourPackage", "TourPackage")
-                        .WithMany("Promotions")
-                        .HasForeignKey("TourPackageId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("TourPackage");
-                });
-
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Schedule", b =>
                 {
-                    b.HasOne("KarnelTravelGuide.Api.Models.TransportRoute", "TransportRoute")
+                    b.HasOne("KarnelTravelGuide.Api.Models.TransportRoute", "Route")
                         .WithMany("Schedules")
-                        .HasForeignKey("TransportRouteId")
+                        .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -911,7 +1067,7 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("TransportRoute");
+                    b.Navigation("Route");
 
                     b.Navigation("Vehicle");
                 });
@@ -920,7 +1076,7 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                 {
                     b.HasOne("KarnelTravelGuide.Api.Models.ServiceProvider", "ServiceProvider")
                         .WithMany("Items")
-                        .HasForeignKey("ServiceProviderId")
+                        .HasForeignKey("ProviderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -941,7 +1097,7 @@ namespace KarnelTravelGuide.Api.Data.Migrations
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.SystemLog", b =>
                 {
                     b.HasOne("KarnelTravelGuide.Api.Models.User", "User")
-                        .WithMany()
+                        .WithMany("SystemLogs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -950,10 +1106,17 @@ namespace KarnelTravelGuide.Api.Data.Migrations
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.TourPackage", b =>
                 {
+                    b.HasOne("KarnelTravelGuide.Api.Models.Promotion", "Promotion")
+                        .WithMany("TourPackages")
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("KarnelTravelGuide.Api.Models.TouristSpot", "TouristSpot")
                         .WithMany("TourPackages")
-                        .HasForeignKey("TouristSpotId")
+                        .HasForeignKey("SpotId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Promotion");
 
                     b.Navigation("TouristSpot");
                 });
@@ -962,7 +1125,7 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                 {
                     b.HasOne("KarnelTravelGuide.Api.Models.CategoryType", "CategoryType")
                         .WithMany("TouristSpots")
-                        .HasForeignKey("CategoryTypeId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -977,9 +1140,30 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                     b.Navigation("Location");
                 });
 
+            modelBuilder.Entity("KarnelTravelGuide.Api.Models.TransportRoute", b =>
+                {
+                    b.HasOne("KarnelTravelGuide.Api.Models.Location", "DepartureLocation")
+                        .WithMany("DepartureRoutes")
+                        .HasForeignKey("DepartureLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("KarnelTravelGuide.Api.Models.Location", "DestinationLocation")
+                        .WithMany("DestinationRoutes")
+                        .HasForeignKey("DestinationLocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DepartureLocation");
+
+                    b.Navigation("DestinationLocation");
+                });
+
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Booking", b =>
                 {
                     b.Navigation("Details");
+
+                    b.Navigation("EmailLogs");
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.CategoryType", b =>
@@ -989,9 +1173,28 @@ namespace KarnelTravelGuide.Api.Data.Migrations
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Location", b =>
                 {
+                    b.Navigation("DepartureRoutes");
+
+                    b.Navigation("DestinationRoutes");
+
                     b.Navigation("ServiceProviders");
 
                     b.Navigation("TouristSpots");
+                });
+
+            modelBuilder.Entity("KarnelTravelGuide.Api.Models.Promotion", b =>
+                {
+                    b.Navigation("TourPackages");
+                });
+
+            modelBuilder.Entity("KarnelTravelGuide.Api.Models.Schedule", b =>
+                {
+                    b.Navigation("BookingDetails");
+                });
+
+            modelBuilder.Entity("KarnelTravelGuide.Api.Models.ServiceItem", b =>
+                {
+                    b.Navigation("BookingDetails");
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.ServiceProvider", b =>
@@ -1001,7 +1204,7 @@ namespace KarnelTravelGuide.Api.Data.Migrations
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.TourPackage", b =>
                 {
-                    b.Navigation("Promotions");
+                    b.Navigation("BookingDetails");
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.TouristSpot", b =>
@@ -1018,9 +1221,11 @@ namespace KarnelTravelGuide.Api.Data.Migrations
                 {
                     b.Navigation("Bookings");
 
-                    b.Navigation("Feedbacks");
+                    b.Navigation("EmailLogs");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("SystemLogs");
                 });
 
             modelBuilder.Entity("KarnelTravelGuide.Api.Models.Vehicle", b =>

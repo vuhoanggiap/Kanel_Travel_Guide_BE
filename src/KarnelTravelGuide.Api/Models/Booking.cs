@@ -2,19 +2,22 @@ namespace KarnelTravelGuide.Api.Models;
 
 public class Booking
 {
-    public int Id { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public int UserId { get; set; }
-    public User User { get; set; } = null!;
-    public string BookingType { get; set; } = "Tour";
-    public string Status { get; set; } = "Pending";
+    public int BookingId { get; set; }
+    public string BookingCode { get; set; } = string.Empty;
+    public int? UserId { get; set; }
+    public User? User { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerPhone { get; set; } = string.Empty;
+    public string CustomerEmail { get; set; } = string.Empty;
+    public string BookingType { get; set; } = string.Empty;
+    public DateTime BookingDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public int TotalPassengers { get; set; }
     public decimal TotalAmount { get; set; }
-    public string ContactName { get; set; } = string.Empty;
-    public string ContactPhone { get; set; } = string.Empty;
-    public string ContactEmail { get; set; } = string.Empty;
-    public string? Note { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? CancelledAt { get; set; }
+    public string PaymentStatus { get; set; } = "Chưa thanh toán";
+    public string BookingStatus { get; set; } = "Chờ duyệt";
+    public string? Notes { get; set; }
 
     public ICollection<BookingDetail> Details { get; set; } = new List<BookingDetail>();
+    public ICollection<EmailLog> EmailLogs { get; set; } = new List<EmailLog>();
 }

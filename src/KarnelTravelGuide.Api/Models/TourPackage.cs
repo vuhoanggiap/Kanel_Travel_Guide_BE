@@ -2,16 +2,17 @@ namespace KarnelTravelGuide.Api.Models;
 
 public class TourPackage
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int? TouristSpotId { get; set; }
+    public int TourId { get; set; }
+    public int? SpotId { get; set; }
     public TouristSpot? TouristSpot { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public int DurationDays { get; set; }
-    public decimal Price { get; set; }
-    public int MaxGuests { get; set; }
-    public string? ImageUrl { get; set; }
-    public bool IsActive { get; set; } = true;
+    public int? PromotionId { get; set; }
+    public Promotion? Promotion { get; set; }
+    public string TourName { get; set; } = string.Empty;
+    public string Duration { get; set; } = string.Empty;
+    public decimal StandardPrice { get; set; }
+    public decimal? SalePrice { get; set; }
+    public string? ItineraryDetail { get; set; }
+    public bool IsFeatured { get; set; }
 
-    public ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
+    public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 }

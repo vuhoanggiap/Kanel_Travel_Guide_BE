@@ -2,13 +2,13 @@ namespace KarnelTravelGuide.Api.Models;
 
 public class TransportRoute
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string FromPlace { get; set; } = string.Empty;
-    public string ToPlace { get; set; } = string.Empty;
-    public decimal DistanceKm { get; set; }
-    public string? Description { get; set; }
-    public bool IsActive { get; set; } = true;
+    public int RouteId { get; set; }
+    public int DepartureLocationId { get; set; }
+    public Location DepartureLocation { get; set; } = null!;
+    public int DestinationLocationId { get; set; }
+    public Location DestinationLocation { get; set; } = null!;
+    public decimal? DistanceKm { get; set; }
+    public string? EstimatedDuration { get; set; }
 
     public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 }
