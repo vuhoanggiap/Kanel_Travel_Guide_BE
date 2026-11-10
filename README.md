@@ -1,29 +1,29 @@
 # Karnel Travel Guide — Backend
 
-Repo này chỉ chứa **backend** (ASP.NET Core Web API). Chưa có giao diện web.
+This repository contains the backend only (ASP.NET Core Web API). It does not contain the web interface.
 
-Frontend do Ánh Huyền, Tiến Dũng và Công Tiến làm ở repo riêng. Bên đó gọi API theo `docs/api-endpoints.md`.
+The frontend is a separate repository. It should follow the JSON samples in `docs/api-endpoints.md`.
 
-## Trong repo này
+## Included
 
-- `DbContext`, migration và dữ liệu mẫu cho 18 bảng
-- Tài liệu API: danh sách endpoint và JSON mẫu
-- File thiết kế CSDL: `docs/Thiet_Ke_CSDL_Karnel_Travel_Guide.xlsx`
-- Một endpoint kiểm tra: `GET /api/health`
+- `DbContext`, the migration, and sample data for 18 tables
+- API documentation: endpoint list and JSON samples
+- Database design file: `docs/Thiet_Ke_CSDL_Karnel_Travel_Guide.xlsx`
+- One check endpoint: `GET /api/health`
 
-Chưa có API đăng nhập, liên hệ, điểm du lịch hay đặt dịch vụ. Những API đó làm ở các hạn sau.
+Login, contact, tourist-spot, and booking APIs are not implemented yet.
 
-## Chạy
+## Run
 
-Cần .NET 10 và SQL Server LocalDB.
+Requires .NET 10 and SQL Server LocalDB.
 
 ```powershell
 dotnet run --project src/KarnelTravelGuide.Api --launch-profile http
 ```
 
-API chạy tại `http://localhost:5098`. Lần chạy đầu tạo database `KarnelTravelGuide` và đổ dữ liệu mẫu.
+The API runs at `http://localhost:5098`. The first run creates the `KarnelTravelGuide` database and loads the sample data.
 
-| Vai trò | Username | Mật khẩu |
+| Role | Username | Password |
 |---|---|---|
 | Admin | admin | Admin@123 |
 | User | minhan | User@123 |
